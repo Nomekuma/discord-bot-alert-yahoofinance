@@ -1,4 +1,5 @@
 import { Universe } from "../services/universeService.js";
+import { bootstrapUniverse } from "../services/universeService.js";
 import { normalizeInterval, buildDateRange } from "../utils/dateUtils.js";
 import { fetchCandles } from "../services/yahooService.js";
 import { computeMACD } from "../helper/MACD.js";
@@ -29,6 +30,7 @@ export async function alertForSymbol(
 
 export async function alertController(req, res) {
   try {
+    await bootstrapUniverse();
     const interval = normalizeInterval(req.query.interval);
     if (!VALID_INTERVALS.has(interval)) {
       return res.status(400).json({

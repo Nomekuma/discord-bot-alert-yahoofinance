@@ -41,11 +41,20 @@ async function fetchBinanceSpot() {
   return set;
 }
 
+import { FOREX_PAIRS, COMMODITIES } from "../constants/marketSymbols.js";
+
 const Universe = {
   us: new Set(),
   binance: new Set(),
+  forex: new Set(FOREX_PAIRS),
+  commodities: new Set(COMMODITIES),
   all() {
-    return new Set([...this.us, ...this.binance]);
+    return new Set([
+      ...this.us,
+      ...this.binance,
+      ...this.forex,
+      ...this.commodities,
+    ]);
   },
 };
 
@@ -55,10 +64,29 @@ async function bootstrapUniverse() {
       fetchNasdaqLists().catch(() => new Set()),
       fetchBinanceSpot().catch(() => new Set()),
     ]);
-    return { us, binance, all: new Set([...us, ...binance]) };
+    const forex = new Set(FOREX_PAIRS);
+    const commodities = new Set(COMMODITIES);
+    return {
+      us,
+      binance,
+      forex,
+      commodities,
+      all: new Set([...us, ...binance, ...forex, ...commodities]),
+    };
   } catch (e) {
     console.error("Universe bootstrap failed:", e);
-    return { us: new Set(), binance: new Set(), all: new Set() };
+    const forex = new Set(FOREX_PAIRS);
+    const commodities = new Set(COMMODITIES);
+    const us = new Set();
+    const binance = new Set();
+    return {
+      us,
+      binance,
+      forex,
+      commodities,
+      imp: new Set([...forex, ...commodities]),
+      all: new Set([...forex, ...commodities, ...binance, ...us]),
+    };
   }
 }
 

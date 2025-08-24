@@ -1,11 +1,10 @@
-import { Universe } from "../services/universeService.js";
 import { bootstrapUniverse } from "../services/universeService.js";
 import { normalizeInterval, buildDateRange } from "../utils/dateUtils.js";
 import { fetchCandles } from "../services/yahooService.js";
 import { computeMACD } from "../helper/MACD.js";
 import { limitConcurrency } from "../utils/concurrency.js";
 
-const VALID_INTERVALS = new Set(["1d", "60m", "1wk", "1mo"]); // Add more as needed
+const VALID_INTERVALS = new Set(["1d", "60m", "1wk", "1mo"]);
 
 export async function alertForSymbol(
   symbol,
@@ -38,7 +37,7 @@ export async function alertController(req, res) {
         valid: [...VALID_INTERVALS],
       });
     }
-    const universeKey = String(req.query.universe ?? "all").toLowerCase();
+    const universeKey = String(req.query.universe ?? "imp").toLowerCase();
     const limit = Math.max(1, Math.min(Number(req.query.limit ?? 100), 500));
     const cursor = Math.max(0, Number(req.query.cursor ?? 0));
     let symbols;

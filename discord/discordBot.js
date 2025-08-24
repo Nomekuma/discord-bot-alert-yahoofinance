@@ -67,7 +67,6 @@ async function botTick(client) {
   const toNotify = [];
   for (const r of results) {
     if (!r) continue;
-    console.log(r);
     const last = lastAlertBySymbol.get(r.symbol);
     if (r.alert !== "none" && r.alert !== last) {
       toNotify.push(r);

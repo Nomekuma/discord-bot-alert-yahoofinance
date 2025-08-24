@@ -30,7 +30,7 @@ export async function alertForSymbol(
 
 export async function alertController(req, res) {
   try {
-    await bootstrapUniverse();
+    const universe = await bootstrapUniverse();
     const interval = normalizeInterval(req.query.interval);
     if (!VALID_INTERVALS.has(interval)) {
       return res.status(400).json({
@@ -57,10 +57,10 @@ export async function alertController(req, res) {
     } else {
       const set =
         universeKey === "us"
-          ? Universe.us
+          ? universe.us
           : universeKey === "binance"
-          ? Universe.binance
-          : Universe.all();
+          ? universe.binance
+          : universe.all;
       symbols = Array.from(set);
     }
     if (!symbols.length)

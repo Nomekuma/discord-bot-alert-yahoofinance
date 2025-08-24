@@ -55,15 +55,10 @@ async function bootstrapUniverse() {
       fetchNasdaqLists().catch(() => new Set()),
       fetchBinanceSpot().catch(() => new Set()),
     ]);
-    Universe.us = us;
-    Universe.binance = binance;
-    console.log(
-      `Universe loaded: US=${us.size}, BINANCE=${binance.size}, ALL=${
-        Universe.all().size
-      }`
-    );
+    return { us, binance, all: new Set([...us, ...binance]) };
   } catch (e) {
     console.error("Universe bootstrap failed:", e);
+    return { us: new Set(), binance: new Set(), all: new Set() };
   }
 }
 

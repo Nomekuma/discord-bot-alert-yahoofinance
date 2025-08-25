@@ -68,10 +68,10 @@ async function botTick(client) {
   for (const r of results) {
     if (!r) continue;
     // this is a test alert to show bot is running
-    if (results.indexOf(r) === 0) {
-      toNotify.push({ symbol: "-----", alert: "-----" });
-      continue;
-    }
+    // if (results.indexOf(r) === 0) {
+    //   toNotify.push({ symbol: "-----", alert: "-----" });
+    //   continue;
+    // }
     const last = lastAlertBySymbol.get(r.symbol);
     if (r.alert !== "none" && r.alert !== last) {
       toNotify.push(r);

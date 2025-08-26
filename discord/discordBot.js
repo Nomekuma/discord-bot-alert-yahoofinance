@@ -5,6 +5,8 @@ import { buildDateRange, normalizeInterval } from "../utils/dateUtils.js";
 import { limitConcurrency } from "../utils/concurrency.js";
 import { alertForSymbol } from "../controller/alertController.js";
 import { SYMBOL_NAMES } from "../constants/marketSymbols.js";
+import { VALID_INTERVALS } from "../constants/IntervalRange.js";
+import { createAlertEmbed } from "./embedTemplate.js";
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const DISCORD_CHANNEL_ID = process.env.DISCORD_CHANNEL_ID;
@@ -20,17 +22,14 @@ const MSG_DELAY_MS = Math.max(
 );
 const BOT_INTERVAL = normalizeInterval(process.env.BOT_INTERVAL ?? "1d");
 const BOT_RANGE = process.env.BOT_RANGE ?? "6mo";
-const VALID_INTERVALS = new Set(["1d", "60m", "1wk", "1mo"]);
 
 const lastAlertBySymbol = new Map();
 
 async function sendDiscordMessages(channel, items) {
   for (const it of items) {
     const name = SYMBOL_NAMES[it.symbol] || it.symbol;
-    const line = `**${
-      it.symbol
-    } (${name})** → **${it.alert.toUpperCase()}** (MACD cross)`;
-    await channel.send({ content: line });
+    const embed = createAlertEmbed(it.symbol, it.alert, name);
+    await channel.send({ embeds: [embed] });
     if (MSG_DELAY_MS > 0) await new Promise((r) => setTimeout(r, MSG_DELAY_MS));
   }
 }

@@ -1,17 +1,9 @@
-import { MINUTE_INTERVALS, RANGE_TO_DAYS } from "../constants/IntervalRange.js";
-
 function normalizeInterval(i) {
-  let s = String(i ?? "10m")
-    .toLowerCase()
-    .trim();
-  // common aliases -> canonical forms used in the app
-  if (s === "1h") s = "60m";
-  if (s === "10min" || s === "10m" || s === "10") s = "10m";
-  if (/^\d+min$/.test(s)) s = s.replace(/min$/, "m");
-  if (/^\d+$/.test(s)) {
-    // plain numbers treated as minutes
-    s = `${s}m`;
-  }
+  // default to 10 minutes when not provided
+  let s = String(i ?? "10m").toLowerCase();
+  // accept both '5min'/'10min' and '5m'/'10m'
+  if (s.endsWith("min")) s = s.replace(/min$/, "m");
+  if (s === "1h") return "60m";
   return s;
 }
 
@@ -32,14 +24,17 @@ function buildDateRange({ range, days, interval }) {
     period1 = startOfYearUTC(now);
   } else if (lowerRange === "max") {
     period1 = new Date(1900, 0, 1);
-  } else if (RANGE_TO_DAYS && RANGE_TO_DAYS[lowerRange]) {
+  } else if (globalThis.RANGE_TO_DAYS && globalThis.RANGE_TO_DAYS[lowerRange]) {
     period1 = new Date(
-      now.getTime() - RANGE_TO_DAYS[lowerRange] * 24 * 60 * 60 * 1000
+      now.getTime() - globalThis.RANGE_TO_DAYS[lowerRange] * 24 * 60 * 60 * 1000
     );
   } else {
     period1 = new Date(now.getTime() - 186 * 24 * 60 * 60 * 1000); // default 6mo
   }
-  if (MINUTE_INTERVALS && MINUTE_INTERVALS.has(interval)) {
+  if (
+    globalThis.MINUTE_INTERVALS &&
+    globalThis.MINUTE_INTERVALS.has(interval)
+  ) {
     const sixMonthsAgo = new Date(now.getTime() - 186 * 24 * 60 * 60 * 1000);
     if (period1 < sixMonthsAgo) period1 = sixMonthsAgo;
   }

@@ -1,7 +1,6 @@
 export const VALID_INTERVALS = new Set([
   "1m",
   "2m",
-  "10m",
   "5m",
   "15m",
   "30m",
@@ -12,12 +11,13 @@ export const VALID_INTERVALS = new Set([
   "1wk",
   "1mo",
   "3mo",
+  "10m", // custom, aggregated from 5m
 ]);
 
 export const MINUTE_INTERVALS = new Set([
   "1m",
   "2m",
-  "10m",
+  "10m", // custom, aggregated from 5m
   "5m",
   "15m",
   "30m",
@@ -36,3 +36,9 @@ export const RANGE_TO_DAYS = {
   "5y": 1860,
   "10y": 3720,
 };
+
+// expose to globalThis so utilities can access these mappings without importing
+if (typeof globalThis !== "undefined") {
+  globalThis.MINUTE_INTERVALS = MINUTE_INTERVALS;
+  globalThis.RANGE_TO_DAYS = RANGE_TO_DAYS;
+}

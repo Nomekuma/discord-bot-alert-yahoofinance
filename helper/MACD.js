@@ -1,3 +1,5 @@
+import { ema } from "./EMA.js";
+
 function computeMACD(candles, fast = 12, slow = 26, signal = 9) {
   if (fast >= slow) throw new Error("`fast` must be < `slow`");
   if (!Array.isArray(candles) || candles.length < slow + signal) return [];

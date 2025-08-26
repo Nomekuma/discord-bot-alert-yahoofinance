@@ -1,4 +1,4 @@
-function ema(values, period) {
+export function ema(values, period) {
   if (!Number.isInteger(period) || period <= 0)
     throw new Error("EMA period must be > 0");
   if (!Array.isArray(values) || values.length < period) return [];

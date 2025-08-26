@@ -53,7 +53,7 @@ node app.js
 #### Alert Endpoint
 
 ```
-GET /alerts
+GET /
 ```
 
 **Query Parameters:**
@@ -70,7 +70,7 @@ GET /alerts
 
 **Example:**
 ```
-GET /alerts?interval=1d&universe=us&limit=50
+GET /?interval=1d&universe=us&limit=50
 ```
 
 **Response:**

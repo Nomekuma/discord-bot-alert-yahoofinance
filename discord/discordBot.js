@@ -20,7 +20,7 @@ const MSG_DELAY_MS = Math.max(
   0,
   Number(process.env.BOT_INTERVAL_BETWEEN_MSG_MS ?? 60)
 );
-const BOT_INTERVAL = normalizeInterval(process.env.BOT_INTERVAL ?? "1d");
+const BOT_INTERVAL = normalizeInterval(process.env.BOT_INTERVAL ?? "10m");
 const BOT_RANGE = process.env.BOT_RANGE ?? "6mo";
 
 const lastAlertBySymbol = new Map();

@@ -11,7 +11,7 @@ export function createAlertEmbed(symbol, alertType = "none", displayName) {
   const title = `${displayName} ${alertType}`;
 
   const when = new Date();
-  const dateStr = when.toISOString();
+  const dateStr = when.toDateString(); // e.g., "Mon Sep 04 2023"
 
   const description = `An alert for **${s}**. Please check your trading platform`;
 

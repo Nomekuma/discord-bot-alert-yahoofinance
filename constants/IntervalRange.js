@@ -1,6 +1,7 @@
-const VALID_INTERVALS = new Set([
+export const VALID_INTERVALS = new Set([
   "1m",
   "2m",
+  "10m",
   "5m",
   "15m",
   "30m",
@@ -12,16 +13,19 @@ const VALID_INTERVALS = new Set([
   "1mo",
   "3mo",
 ]);
-const MINUTE_INTERVALS = new Set([
+
+export const MINUTE_INTERVALS = new Set([
   "1m",
   "2m",
+  "10m",
   "5m",
   "15m",
   "30m",
   "60m",
   "90m",
 ]);
-const RANGE_TO_DAYS = {
+
+export const RANGE_TO_DAYS = {
   "1d": 1,
   "5d": 5,
   "1mo": 31,
@@ -31,10 +35,4 @@ const RANGE_TO_DAYS = {
   "2y": 744,
   "5y": 1860,
   "10y": 3720,
-};
-
-module.exports = {
-  VALID_INTERVALS,
-  MINUTE_INTERVALS,
-  RANGE_TO_DAYS,
 };

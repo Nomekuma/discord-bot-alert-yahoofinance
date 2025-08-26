@@ -1,10 +1,10 @@
 import { bootstrapUniverse } from "../services/universeService.js";
 import { normalizeInterval, buildDateRange } from "../utils/dateUtils.js";
 import { fetchCandles } from "../services/yahooService.js";
+import { SYMBOL_NAMES } from "../constants/marketSymbols.js";
 import { computeMACD } from "../helper/MACD.js";
 import { limitConcurrency } from "../utils/concurrency.js";
-
-const VALID_INTERVALS = new Set(["1d", "60m", "1wk", "1mo"]);
+import { VALID_INTERVALS } from "../constants/IntervalRange.js";
 
 export async function alertForSymbol(
   symbol,
@@ -81,12 +81,17 @@ export async function alertController(req, res) {
       (sym) => alertForSymbol(sym, opts),
       6
     );
+    const data = results.filter(Boolean).map((r) => ({
+      symbol: r.symbol,
+      name: SYMBOL_NAMES[r.symbol] || r.symbol,
+      alert: r.alert,
+    }));
     res.json({
       universe: universeKey,
-      count: results.filter(Boolean).length,
+      count: data.length,
       nextCursor:
         cursor + page.length < symbols.length ? cursor + page.length : null,
-      data: results.filter(Boolean),
+      data,
     });
   } catch (err) {
     res.status(500).json({ error: err?.message ?? "Unknown error" });

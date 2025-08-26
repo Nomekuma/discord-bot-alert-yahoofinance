@@ -4,6 +4,7 @@ import { Universe } from "../services/universeService.js";
 import { buildDateRange, normalizeInterval } from "../utils/dateUtils.js";
 import { limitConcurrency } from "../utils/concurrency.js";
 import { alertForSymbol } from "../controller/alertController.js";
+import { SYMBOL_NAMES } from "../constants/marketSymbols.js";
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const DISCORD_CHANNEL_ID = process.env.DISCORD_CHANNEL_ID;
@@ -25,9 +26,10 @@ const lastAlertBySymbol = new Map();
 
 async function sendDiscordMessages(channel, items) {
   for (const it of items) {
+    const name = SYMBOL_NAMES[it.symbol] || it.symbol;
     const line = `**${
       it.symbol
-    }** → **${it.alert.toUpperCase()}** (MACD cross)`;
+    } (${name})** → **${it.alert.toUpperCase()}** (MACD cross)`;
     await channel.send({ content: line });
     if (MSG_DELAY_MS > 0) await new Promise((r) => setTimeout(r, MSG_DELAY_MS));
   }

@@ -58,6 +58,8 @@ GET /alerts
 
 **Query Parameters:**
 - `interval` (string): Candle interval (e.g., `1d`, `60m`, `1wk`, `1mo`)
+- `interval` (string): Candle interval (e.g., `1d`, `60m`, `10m`, `1wk`, `1mo`).
+	Accepts common aliases like `10min` or numeric minutes (`10`) which map to `10m`.
 - `universe` (string): `us`, `binance`, or `all` (default: `all`)
 - `symbols` (string): Comma-separated list of symbols (optional)
 - `limit` (number): Max symbols per request (default: 100, max: 500)

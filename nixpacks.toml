@@ -1,0 +1,12 @@
+[phases.setup]
+nixPkgs = ["nodejs-18_x"]
+
+[phases.install]
+# works on modern npm
+cmds = ["npm ci --omit=dev"]
+
+[phases.build]
+cmds = ["echo 'no build step'"]
+
+[start]
+cmd = "npm run start"

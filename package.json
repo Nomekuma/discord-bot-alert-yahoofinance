@@ -5,8 +5,10 @@
   "type": "module",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js"
+  "start": "node app.js",
+  "dev": "nodemon app.js",
+  "smoke": "node ./scripts/smoke-check.js",
+  "test": "npm run smoke"
   },
   "keywords": [],
   "author": "",

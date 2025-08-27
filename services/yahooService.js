@@ -68,13 +68,25 @@ async function fetchCandles(symbol, interval, period1, period2) {
   if (period2 !== undefined && period2 !== null) chartOpts.period2 = period2;
   const res = await yf.chart(symbol, chartOpts);
   const quotes = res?.quotes ?? [];
+  const coerce = (v) => {
+    if (v === undefined || v === null) return NaN;
+    if (typeof v === "object") {
+      if (Object.prototype.hasOwnProperty.call(v, "raw")) return Number(v.raw);
+      // try to coerce other objects
+      const n = Number(v);
+      return Number.isNaN(n) ? NaN : n;
+    }
+    const n = Number(v);
+    return Number.isNaN(n) ? NaN : n;
+  };
+
   const candles = quotes.map((q) => ({
     time: new Date(q.date),
-    open: q.open,
-    high: q.high,
-    low: q.low,
-    close: q.close,
-    volume: q.volume,
+    open: coerce(q.open),
+    high: coerce(q.high),
+    low: coerce(q.low),
+    close: coerce(q.close),
+    volume: coerce(q.volume) || 0,
   }));
 
   if (aggregateTo10) {

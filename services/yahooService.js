@@ -1,13 +1,16 @@
 import yf from "yahoo-finance2";
 import { aggregateCandles } from "../helper/index.js";
 async function fetchCandles(symbol, interval, period1, period2) {
-  // Yahoo API doesn't support 10m, so request 5m and aggregate into 10m when needed
+  // Yahoo API doesn't support 10m, so request 1m and aggregate into 10m when needed
   let apiInterval = interval;
   let aggregateTo10 = false;
   if (interval === "10m") {
-    apiInterval = "5m";
+    apiInterval = "1m";
     aggregateTo10 = true;
   }
+
+  // derive numeric minutes from apiInterval like "1m" -> 1, "5m" -> 5
+  const sourceMinutes = Number(String(apiInterval).replace(/\D/g, "")) || 1;
 
   const chartOpts = { interval: apiInterval };
   if (period1 !== undefined && period1 !== null) chartOpts.period1 = period1;
@@ -38,7 +41,7 @@ async function fetchCandles(symbol, interval, period1, period2) {
   if (aggregateTo10) {
     return aggregateCandles(candles, {
       targetMinutes: 10,
-      sourceMinutes: 5,
+      sourceMinutes,
       requireFull: false,
     });
   }

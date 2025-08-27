@@ -1,6 +1,6 @@
 export function aggregateCandles(
   candles,
-  { targetMinutes = 10, sourceMinutes = 5, requireFull = true } = {}
+  { targetMinutes = 10, sourceMinutes = 1, requireFull = true } = {}
 ) {
   if (!candles?.length) return [];
   if (targetMinutes % sourceMinutes !== 0) {

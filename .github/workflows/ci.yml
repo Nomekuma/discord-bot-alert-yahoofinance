@@ -1,0 +1,20 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: npm
+      - run: npm ci --omit=dev
+      - run: npm test
+      - name: Deploy
+        run: echo "Deploy step placeholder"

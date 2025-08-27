@@ -8,7 +8,8 @@ export function crossed(prevDiff, currDiff, eps = EPS) {
 
 export function slopeConfirm(prevMACD, currMACD, dir, eps = EPS) {
   const s = currMACD - prevMACD;
-  return dir === "up" ? s > -eps : s < eps;
+  // Less strict: allow any positive slope for up, any negative for down
+  return dir === "up" ? s >= -eps : s <= eps;
 }
 
 export function zeroLineConfirm(currMACD, dir, eps = EPS) {

@@ -63,11 +63,10 @@ async function fetchCandles(symbol, interval, period1, period2) {
     aggregateTo10 = true;
   }
 
-  const res = await yf.chart(symbol, {
-    interval: apiInterval,
-    period1,
-    period2,
-  });
+  const chartOpts = { interval: apiInterval };
+  if (period1 !== undefined && period1 !== null) chartOpts.period1 = period1;
+  if (period2 !== undefined && period2 !== null) chartOpts.period2 = period2;
+  const res = await yf.chart(symbol, chartOpts);
   const quotes = res?.quotes ?? [];
   const candles = quotes.map((q) => ({
     time: new Date(q.date),

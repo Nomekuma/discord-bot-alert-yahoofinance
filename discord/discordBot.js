@@ -107,7 +107,7 @@ export async function startDiscordBot() {
   const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
   });
-  client.once("ready", () => {
+  client.once("clientReady", () => {
     console.log(`Discord bot logged in as ${client.user.tag}`);
   });
   await client.login(DISCORD_TOKEN);

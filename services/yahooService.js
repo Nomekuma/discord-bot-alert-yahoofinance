@@ -1,23 +1,36 @@
 import yf from "yahoo-finance2";
 
-function aggregate5To10(candles, { requireFull = true, perBucket = 2 } = {}) {
-  if (!candles || !candles.length) return [];
-  // ensure ascending order
-  const sorted = candles.slice().sort((a, b) => a.time - b.time);
+export function aggregateCandles(
+  candles,
+  { targetMinutes = 10, sourceMinutes = 5, requireFull = true } = {}
+) {
+  if (!candles?.length) return [];
+  if (targetMinutes % sourceMinutes !== 0) {
+    throw new Error(`targetMinutes must be multiple of sourceMinutes`);
+  }
+  const perBucket = targetMinutes / sourceMinutes;
+
+  // Normalize input order
+  const sorted = candles
+    .slice()
+    .sort((a, b) => +new Date(a.time) - +new Date(b.time));
+
   const buckets = new Map();
-  // store counts to detect partial buckets
   const counts = new Map();
+
   for (const c of sorted) {
     const t = new Date(c.time);
     const year = t.getUTCFullYear();
     const month = t.getUTCMonth();
     const date = t.getUTCDate();
     const hour = t.getUTCHours();
-    const minuteBucket = Math.floor(t.getUTCMinutes() / 10) * 10;
-    const key = `${year}-${month}-${date}-${hour}-${minuteBucket}`;
+    const minuteBucket =
+      Math.floor(t.getUTCMinutes() / targetMinutes) * targetMinutes;
+
+    const key = Date.UTC(year, month, date, hour, minuteBucket);
     if (!buckets.has(key)) {
       buckets.set(key, {
-        time: new Date(Date.UTC(year, month, date, hour, minuteBucket)),
+        time: new Date(key),
         open: c.open,
         high: c.high,
         low: c.low,
@@ -34,14 +47,11 @@ function aggregate5To10(candles, { requireFull = true, perBucket = 2 } = {}) {
       counts.set(key, (counts.get(key) || 0) + 1);
     }
   }
-  const out = Array.from(buckets.entries())
-    .filter(([key, val]) => {
-      if (!requireFull) return true;
-      return (counts.get(key) || 0) >= perBucket;
-    })
-    .map(([k, v]) => v)
-    .sort((a, b) => a.time - b.time);
-  return out;
+
+  return Array.from(buckets.entries())
+    .filter(([k]) => !requireFull || (counts.get(k) || 0) >= perBucket)
+    .map(([_, v]) => v)
+    .sort((a, b) => +a.time - +b.time);
 }
 
 async function fetchCandles(symbol, interval, period1, period2) {
@@ -68,8 +78,14 @@ async function fetchCandles(symbol, interval, period1, period2) {
     volume: q.volume,
   }));
 
-  if (aggregateTo10) return aggregate5To10(candles, { requireFull: true });
+  if (aggregateTo10) {
+    return aggregateCandles(candles, {
+      targetMinutes: 10,
+      sourceMinutes: 5,
+      requireFull: false,
+    });
+  }
   return candles;
 }
 
-export { fetchCandles, aggregate5To10 };
+export { fetchCandles };

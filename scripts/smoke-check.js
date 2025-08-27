@@ -23,7 +23,7 @@ const hours = Number(argv[2] || 24);
     if (!Array.isArray(candles))
       throw new Error("fetchCandles returned non-array");
     console.log("candles fetched:", candles.length);
-    console.log("sample first 10:", candles.slice(0, 10));
+    console.log("sample first 10:", candles.slice(0, 100));
     if (candles.length === 0) throw new Error("no candles fetched");
     if (candles.length < 2) throw new Error("not enough candles fetched");
     if (

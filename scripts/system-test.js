@@ -52,8 +52,7 @@ async function testAlertController(candles) {
       slow: 26,
       signal: 9,
       lookbackBars: 1,
-      requireClosedBar: false,
-      useZeroLine: false
+      requireClosedBar: false
     };
 
     console.log(`Testing alert detection for ${symbol}...`);

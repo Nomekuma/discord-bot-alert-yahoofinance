@@ -5,7 +5,12 @@ import { SYMBOL_NAMES } from "../constants/marketSymbols.js";
 import { computeMACD } from "../helper/index.js";
 import { limitConcurrency } from "../utils/concurrency.js";
 import { VALID_INTERVALS } from "../constants/IntervalRange.js";
-import { findRecentCross, slopeConfirm, zeroLineConfirm, isBarClosed } from "../utils/crossedDetection.js";
+import {
+  findRecentCross,
+  slopeConfirm,
+  zeroLineConfirm,
+  isBarClosed,
+} from "../utils/crossedDetection.js";
 const EPS = 1e-8;
 
 export async function alertForSymbol(
@@ -17,9 +22,9 @@ export async function alertForSymbol(
     fast = 12,
     slow = 26,
     signal = 9,
-    lookbackBars = 1,     // NEW: catch crosses that happened 1 bar ago
+    lookbackBars = 1, // NEW: catch crosses that happened 1 bar ago
     requireClosedBar = true, // NEW: ignore still-forming last candle
-    useZeroLine = false   // toggle this for higher-quality but fewer signals
+    useZeroLine = false, // toggle this for higher-quality but fewer signals
   }
 ) {
   try {
@@ -30,9 +35,10 @@ export async function alertForSymbol(
 
     // Optionally drop the last candle if it's not aligned (still forming)
     const lastCandle = candles[candles.length - 1];
-    const usable = (requireClosedBar && !isBarClosed(lastCandle.time, interval))
-      ? candles.slice(0, -1)
-      : candles;
+    const usable =
+      requireClosedBar && !isBarClosed(lastCandle.time, interval)
+        ? candles.slice(0, -1)
+        : candles;
 
     const macd = computeMACD(usable, fast, slow, signal);
     if (macd.length < 2) return { symbol, alert: "none" };
@@ -46,10 +52,11 @@ export async function alertForSymbol(
     const last = macd[idx];
 
     const slopeOk = slopeConfirm(prev.macd, last.macd, dir, EPS);
-    const zeroOk  = useZeroLine ? zeroLineConfirm(last.macd, dir, EPS) : true;
+    const zeroOk = useZeroLine ? zeroLineConfirm(last.macd, dir, EPS) : true;
 
-    if (dir === "up" && slopeOk && zeroOk)  return { symbol, alert: "bullish" };
-    if (dir === "down" && slopeOk && zeroOk) return { symbol, alert: "bearish" };
+    if (dir === "up" && slopeOk && zeroOk) return { symbol, alert: "bullish" };
+    if (dir === "down" && slopeOk && zeroOk)
+      return { symbol, alert: "bearish" };
     return { symbol, alert: "none" };
   } catch {
     return { symbol, alert: "none" };
@@ -90,6 +97,8 @@ export async function alertController(req, res) {
           ? universe.us
           : universeKey === "binance"
           ? universe.binance
+          : universeKey === "imp"
+          ? universe.imp
           : universe.all;
       symbols = Array.from(set);
     }

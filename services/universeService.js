@@ -71,6 +71,7 @@ async function bootstrapUniverse() {
       binance,
       forex,
       commodities,
+      imp: new Set([...forex, ...commodities]),
       all: new Set([...us, ...binance, ...forex, ...commodities]),
     };
   } catch (e) {

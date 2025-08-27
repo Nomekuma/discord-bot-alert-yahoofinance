@@ -1,5 +1,5 @@
 import yf from "yahoo-finance2";
-import { aggregateCandles } from "../helper";
+import { aggregateCandles } from "../helper/index.js";
 async function fetchCandles(symbol, interval, period1, period2) {
   // Yahoo API doesn't support 10m, so request 5m and aggregate into 10m when needed
   let apiInterval = interval;

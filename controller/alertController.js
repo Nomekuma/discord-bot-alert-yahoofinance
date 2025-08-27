@@ -1,21 +1,26 @@
 import { bootstrapUniverse } from "../services/universeService.js";
 import { normalizeInterval, buildDateRange } from "../utils/dateUtils.js";
-import {
-  crossed,
-  slopeConfirm,
-  zeroLineConfirm,
-} from "../utils/crossedDetection.js";
 import { fetchCandles } from "../services/yahooService.js";
 import { SYMBOL_NAMES } from "../constants/marketSymbols.js";
 import { computeMACD } from "../helper/index.js";
 import { limitConcurrency } from "../utils/concurrency.js";
 import { VALID_INTERVALS } from "../constants/IntervalRange.js";
-
+import { findRecentCross, slopeConfirm, zeroLineConfirm, isBarClosed } from "../utils/crossedDetection.js";
 const EPS = 1e-8;
 
 export async function alertForSymbol(
   symbol,
-  { interval, period1, period2, fast = 12, slow = 26, signal = 9 }
+  {
+    interval,
+    period1,
+    period2,
+    fast = 12,
+    slow = 26,
+    signal = 9,
+    lookbackBars = 1,     // NEW: catch crosses that happened 1 bar ago
+    requireClosedBar = true, // NEW: ignore still-forming last candle
+    useZeroLine = false   // toggle this for higher-quality but fewer signals
+  }
 ) {
   try {
     const candles = await fetchCandles(symbol, interval, period1, period2);
@@ -23,27 +28,28 @@ export async function alertForSymbol(
       return { symbol, alert: "none" };
     }
 
-    const macd = computeMACD(candles, fast, slow, signal);
+    // Optionally drop the last candle if it's not aligned (still forming)
+    const lastCandle = candles[candles.length - 1];
+    const usable = (requireClosedBar && !isBarClosed(lastCandle.time, interval))
+      ? candles.slice(0, -1)
+      : candles;
+
+    const macd = computeMACD(usable, fast, slow, signal);
     if (macd.length < 2) return { symbol, alert: "none" };
 
-    const prev = macd[macd.length - 2];
-    const last = macd[macd.length - 1];
-
-    const prevDiff = prev.macd - prev.signal;
-    const currDiff = last.macd - last.signal;
-    const dir = crossed(prevDiff, currDiff, EPS);
-
+    // Look for a recent cross within the chosen window (default 1 bar)
+    const { dir, idx } = findRecentCross(macd, lookbackBars, EPS);
     if (!dir) return { symbol, alert: "none" };
 
-    const slopeOk = slopeConfirm(prev.macd, last.macd, dir, EPS);
-    const zeroOk = zeroLineConfirm(last.macd, dir, EPS);
+    // Use the two points at the cross index for slope & zero-line checks
+    const prev = macd[idx - 1];
+    const last = macd[idx];
 
-    if (dir === "up" && slopeOk && zeroOk && slopeOk) {
-      return { symbol, alert: "bullish" };
-    }
-    if (dir === "down" && slopeOk && zeroOk && slopeOk) {
-      return { symbol, alert: "bearish" };
-    }
+    const slopeOk = slopeConfirm(prev.macd, last.macd, dir, EPS);
+    const zeroOk  = useZeroLine ? zeroLineConfirm(last.macd, dir, EPS) : true;
+
+    if (dir === "up" && slopeOk && zeroOk)  return { symbol, alert: "bullish" };
+    if (dir === "down" && slopeOk && zeroOk) return { symbol, alert: "bearish" };
     return { symbol, alert: "none" };
   } catch {
     return { symbol, alert: "none" };

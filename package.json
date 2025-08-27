@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "smoke": "node ./scripts/smoke-check.js",
+    "smoke": "node ./scripts/system-test.js",
     "test": "npm run smoke"
   },
   "keywords": [],
@@ -26,6 +26,6 @@
     "yahoo-finance2": "^2.13.3"
   },
   "devDependencies": {
-    "nodemon": "^3.0.3"
+    "nodemon": "^3.1.10"
   }
 }

@@ -2,47 +2,29 @@ import { bootstrapUniverse } from "../services/universeService.js";
 import { normalizeInterval, buildDateRange } from "../utils/dateUtils.js";
 import { fetchCandles } from "../services/yahooService.js";
 import { SYMBOL_NAMES } from "../constants/marketSymbols.js";
-import { computeMACD } from "../helper/index.js";
+import { computeMACD } from "../helper/index.js"; // still used indirectly by logic helper
 import { limitConcurrency } from "../utils/concurrency.js";
 import { VALID_INTERVALS } from "../constants/IntervalRange.js";
-import { findRecentCross, isBarClosed } from "../utils/crossedDetection.js";
+import { evaluateMACDAlert } from "./alertLogic.js";
+
 const EPS = 1e-8;
 
 export async function alertForSymbol(
   symbol,
-  {
-    interval,
-    period1,
-    period2,
-    fast = 12,
-    slow = 26,
-    signal = 9,
-    lookbackBars = 5, // allow crosses up to 5 bars back by default
-    requireClosedBar = false, // process the latest candle even if still forming
-  }
+  { interval, period1, period2, fast = 12, slow = 26, signal = 9 }
 ) {
   try {
     const candles = await fetchCandles(symbol, interval, period1, period2);
     if (!Array.isArray(candles) || candles.length < slow + signal) {
       return { symbol, alert: "none" };
     }
-
-    // Optionally drop the last candle if it's not aligned (still forming)
-    const lastCandle = candles[candles.length - 1];
-    const usable =
-      requireClosedBar && !isBarClosed(lastCandle.time, interval)
-        ? candles.slice(0, -1)
-        : candles;
-
-    const macd = computeMACD(usable, fast, slow, signal);
-    if (macd.length < 2) return { symbol, alert: "none" };
-
-    // Look for a recent cross within the chosen window
-    const { dir } = findRecentCross(macd, lookbackBars, EPS);
-    if (!dir) return { symbol, alert: "none" };
-    if (dir === "up") return { symbol, alert: "bullish" };
-    if (dir === "down") return { symbol, alert: "bearish" };
-    return { symbol, alert: "none" };
+    const { alert } = evaluateMACDAlert(candles, {
+      fast,
+      slow,
+      signal,
+      eps: EPS,
+    });
+    return { symbol, alert };
   } catch {
     return { symbol, alert: "none" };
   }
